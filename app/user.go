@@ -11,9 +11,10 @@ import (
 )
 
 type User struct {
-	ID   int       `json:"id"`
-	Date time.Time `json:"date"`
-	Name string    `json:"name"`
+	ID         int       `json:"id"`
+	Username   string    `json:"username"`
+	Department string    `json:"department"`
+	Created    time.Time `json:"created"`
 }
 
 func (app *App) getUser(w http.ResponseWriter, r *http.Request, api bool) {
@@ -26,7 +27,8 @@ func (app *App) getUser(w http.ResponseWriter, r *http.Request, api bool) {
 
 	user := &User{}
 
-	err := app.Database.QueryRow("SELECT id, date, name FROM test WHERE id = $1", id).Scan(&user.ID, &user.Date, &user.Name)
+	err := app.Database.QueryRow("SELECT id, created, username, department FROM  userinfo WHERE id = $1", id).
+		Scan(&user.ID, &user.Created, &user.Username, &user.Department)
 	if err != nil {
 		log.Fatal("Database SELECT failed")
 	}
@@ -44,7 +46,8 @@ func (app *App) getUser(w http.ResponseWriter, r *http.Request, api bool) {
 func (app *App) newUser(w http.ResponseWriter, r *http.Request) {
 
 	user := "Dev"
-	_, err := app.Database.Exec("INSERT INTO test (name) VALUES ($1)", user)
+	dep := "Sysadmin"
+	_, err := app.Database.Exec("INSERT INTO userinfo (username,department) VALUES ($1,$2)", user, dep)
 
 	if err != nil {
 		fmt.Println(err)
